@@ -54,6 +54,25 @@ python compare_6models_pt_20cm_30cm.py
 
 `RECYCLING_MODEL_ROOT`에는 각 학습 run directory와 `weights/best.pt`가 있어야 합니다. CUDA를 사용하지 않는 환경에서는 `RECYCLING_DEVICE=cpu`로 설정할 수 있습니다.
 
+## 영상 추론 결과
+
+20 cm와 30 cm 거리에서 촬영한 동일한 입력 영상의 900 frames를 각 모델로 추론했습니다. 아래 링크에서 원본 영상과 bounding box가 표시된 모델별 결과를 직접 확인할 수 있습니다.
+
+| Model | 20 cm 결과 | 20 cm FPS | 30 cm 결과 | 30 cm FPS |
+|---|---|---:|---|---:|
+| YOLO11n | [영상 보기](videos/20cm/yolo11n_result.mp4) | 17.27 | [영상 보기](videos/30cm/yolo11n_result.mp4) | 18.63 |
+| YOLO11s | [영상 보기](videos/20cm/yolo11s_result.mp4) | 8.28 | [영상 보기](videos/30cm/yolo11s_result.mp4) | 8.74 |
+| YOLO12n | [영상 보기](videos/20cm/yolo12n_result.mp4) | 9.38 | [영상 보기](videos/30cm/yolo12n_result.mp4) | 9.81 |
+| YOLO12s | [영상 보기](videos/20cm/yolo12s_result.mp4) | 4.82 | [영상 보기](videos/30cm/yolo12s_result.mp4) | 4.82 |
+| **YOLO26n** | [영상 보기](videos/20cm/yolo26n_result.mp4) | **21.17** | [영상 보기](videos/30cm/yolo26n_result.mp4) | **20.66** |
+| YOLO26s | [영상 보기](videos/20cm/yolo26s_result.mp4) | 8.93 | [영상 보기](videos/30cm/yolo26s_result.mp4) | 8.99 |
+
+- 원본 입력: [20 cm](videos/input/comparison_video_20cm.mp4) · [30 cm](videos/input/comparison_video_30cm.mp4)
+- 상세 frame 예측: [20 cm CSV](videos/20cm/frame_predictions.csv) · [30 cm CSV](videos/30cm/frame_predictions.csv)
+- 모델 요약: [20 cm CSV](videos/20cm/model_summary.csv) · [30 cm CSV](videos/30cm/model_summary.csv)
+
+영상 추론에서는 YOLO26n이 두 거리 모두 가장 높은 FPS를 기록했습니다. Validation 정확도는 YOLO26s가 가장 높았으므로, 실제 배포에서는 정확도와 처리 속도의 요구사항에 따라 두 모델을 우선 비교할 수 있습니다.
+
 ## 프로젝트 구조
 
 ```text
@@ -62,6 +81,7 @@ scripts/                    데이터 전처리 및 검증 도구
 reports/                    데이터셋 및 클래스 분포 요약
 pc_compare/input/           거리별 비교 입력 image
 pc_compare/results/         탐지 결과 image 및 CSV
+videos/                     거리별 입력 영상, 모델별 추론 영상 및 CSV
 compare_6models_pt_20cm_30cm.py
 ```
 

@@ -1,7 +1,7 @@
 distance,model,processed_frames,avg_inference_ms,inference_fps,total_detections,avg_detections_per_frame,result_video
-20cm,yolo11n,900,57.901,17.271,663,0.737,/home/kimhuijun/recycling_yolo/video_test/results/20cm/yolo11n_result.mp4
-20cm,yolo11s,900,120.803,8.278,826,0.918,/home/kimhuijun/recycling_yolo/video_test/results/20cm/yolo11s_result.mp4
-20cm,yolo12n,900,106.648,9.377,952,1.058,/home/kimhuijun/recycling_yolo/video_test/results/20cm/yolo12n_result.mp4
-20cm,yolo12s,900,207.361,4.822,864,0.96,/home/kimhuijun/recycling_yolo/video_test/results/20cm/yolo12s_result.mp4
-20cm,yolo26n,900,47.248,21.165,519,0.577,/home/kimhuijun/recycling_yolo/video_test/results/20cm/yolo26n_result.mp4
-20cm,yolo26s,900,111.937,8.934,757,0.841,/home/kimhuijun/recycling_yolo/video_test/results/20cm/yolo26s_result.mp4
+20cm,yolo11n,900,57.901,17.271,663,0.737,videos/20cm/yolo11n_result.mp4
+20cm,yolo11s,900,120.803,8.278,826,0.918,videos/20cm/yolo11s_result.mp4
+20cm,yolo12n,900,106.648,9.377,952,1.058,videos/20cm/yolo12n_result.mp4
+20cm,yolo12s,900,207.361,4.822,864,0.96,videos/20cm/yolo12s_result.mp4
+20cm,yolo26n,900,47.248,21.165,519,0.577,videos/20cm/yolo26n_result.mp4
+20cm,yolo26s,900,111.937,8.934,757,0.841,videos/20cm/yolo26s_result.mp4
