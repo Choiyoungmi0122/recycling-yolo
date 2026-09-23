@@ -1,0 +1,6 @@
+﻿stem,status,original_codes,yolo_classes,reason
+c_20220715_000141,TARGET_ONLY,c_6_01,plastic_dirty,원천 이미지 누락으로 학습 제외
+c_20220817_003096,TARGET_MIXED,c_7|c_7|c_3,can_normal,A 방식에서 원래 제외되는 혼합 이미지
+c_20220908_004734,TARGET_ONLY,c_3,can_normal,원천 이미지 누락으로 학습 제외
+c_20220922_003347,NO_TARGET,c_7|c_1,,11-class 비대상 이미지
+c_20221020_003037,NO_TARGET,c_1_01,,11-class 비대상 이미지

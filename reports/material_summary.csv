@@ -1,0 +1,9 @@
+﻿split,material,image_count,bbox_count
+train,CAN,28615,33425
+train,GLASS,47688,50811
+train,PET,32251,34961
+train,PLASTIC,43294,51167
+val,CAN,3505,4103
+val,GLASS,6015,6418
+val,PET,4107,4431
+val,PLASTIC,5392,6365

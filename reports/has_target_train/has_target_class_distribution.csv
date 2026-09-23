@@ -1,0 +1,12 @@
+﻿class_id,class_name,image_count,bbox_count
+0,can_normal,22960,25825
+1,can_dirty,7037,7598
+2,glass_normal,17196,17206
+3,glass_dirty,7426,7428
+4,glass_packaging,23654,26177
+5,pet_normal,6025,6179
+6,pet_dirty,5581,5642
+7,pet_packaging,14626,15713
+8,pet_dirty_packaging,7158,7427
+9,plastic_normal,24918,27470
+10,plastic_dirty,21534,23696

@@ -1,0 +1,18 @@
+# Copy this file to dataset_11class.yaml and replace the paths locally.
+train: /path/to/train_has_target.txt
+val: /path/to/val_final.txt
+test: /path/to/test_final.txt
+
+names:
+  0: can_normal
+  1: can_dirty
+  2: glass_normal
+  3: glass_dirty
+  4: glass_packaging
+  5: pet_normal
+  6: pet_dirty
+  7: pet_packaging
+  8: pet_dirty_packaging
+  9: plastic_normal
+  10: plastic_dirty
+

@@ -1,0 +1,53 @@
+# Local datasets and generated artifacts
+data/
+processed/
+runs/
+models/
+moidels/
+weights/
+downloads/
+excluded/
+selected/
+raw/
+
+# Model binaries
+*.pt
+*.pth
+*.onnx
+*.engine
+*.ckpt
+*.weights
+
+# Machine-specific dataset configuration
+configs/dataset_11class.yaml
+configs/dataset_11class_smoke.yaml
+
+# Accidental empty shell artifacts
+/dir
+/train
+/val
+
+# Large/private audit outputs
+reports/**/*manifest.csv
+reports/**/*.jpg
+
+# Secrets and local environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+
+# Python/tool caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

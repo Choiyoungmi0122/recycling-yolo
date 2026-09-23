@@ -1,0 +1,14 @@
+﻿distance,model,detection_count,class_id,class_name,confidence,x1,y1,x2,y2
+20cm,yolo11n,1,0,can_normal,0.437213,217.23,137.59,321.64,438.32
+20cm,yolo11s,1,0,can_normal,0.484506,218.74,138.79,320.9,439.55
+20cm,yolo12n,3,4,glass_packaging,0.52558,469.21,197.69,610.59,480.0
+20cm,yolo12n,3,0,can_normal,0.451445,216.72,139.41,320.87,438.89
+20cm,yolo12n,3,9,plastic_normal,0.39838,216.9,139.25,321.16,437.2
+20cm,yolo12s,1,4,glass_packaging,0.645844,216.18,138.09,323.12,438.42
+20cm,yolo26n,3,10,plastic_dirty,0.686676,520.29,0.0,639.65,271.12
+20cm,yolo26n,3,4,glass_packaging,0.463697,217.83,140.18,327.68,440.02
+20cm,yolo26n,3,7,pet_packaging,0.343154,54.3,14.77,208.19,256.11
+20cm,yolo26s,4,0,can_normal,0.575063,215.68,138.23,321.05,438.92
+20cm,yolo26s,4,7,pet_packaging,0.341284,331.49,242.06,637.09,479.71
+20cm,yolo26s,4,7,pet_packaging,0.329372,46.17,14.57,208.9,426.49
+20cm,yolo26s,4,2,glass_normal,0.27861,506.75,0.0,640.0,252.09
