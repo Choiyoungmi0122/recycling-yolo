@@ -1,0 +1,4 @@
+# Orin(Linux) 에서 실행되는 파일은 체크아웃 시에도 LF 유지
+*.sh text eol=lf
+*.env text eol=lf
+deploy/Dockerfile.* text eol=lf

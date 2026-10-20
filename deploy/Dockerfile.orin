@@ -1,0 +1,68 @@
+# 방법 1 추론 서비스 - Jetson Orin Nano (JetPack 6 / L4T R36, aarch64)
+#
+# Orin 에서 빌드 (x86 PC 에서 빌드한 이미지는 Orin 에서 실행되지 않음):
+#   cd ~/recycling_app
+#   docker build -f deploy/Dockerfile.orin -t recycling-method1:orin .
+#
+# 실행은 deploy/run_orin.sh 참고
+
+FROM nvcr.io/nvidia/deepstream:7.1-samples-multiarch
+
+# JetPack 6 / CUDA 12.6 용 PyTorch wheel index
+ARG TORCH_INDEX=https://pypi.jetson-ai-lab.io/jp6/cu126
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+# python3-opencv (apt) 는 GStreamer 지원 포함 → CSI 카메라(nvarguscamerasrc) 사용 가능
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3-pip \
+        python3-opencv \
+        libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# apt opencv 가 numpy 1.x 로 빌드되어 있어 numpy<2 고정
+RUN pip3 install "numpy<2" \
+    && pip3 install torch==2.8.0 torchvision==0.23.0 --index-url ${TORCH_INDEX}
+
+# ultralytics 가 설치하는 pip opencv 는 GStreamer 가 없으므로 제거하고 apt opencv 사용
+RUN pip3 install ultralytics==8.4.135 \
+    && pip3 uninstall -y opencv-python opencv-python-headless || true \
+    && pip3 install "numpy<2"
+
+# DeepStream 이미지는 라이선스 문제로 ffmpeg(libav*) 라이브러리 파일을 지워둠
+# → opencv import 시 libavcodec.so.58 없음 오류. NVIDIA 제공 스크립트로 복구
+#   (스크립트가 복구하지 않는 libmp3lame / libxvidcore 는 직접 재설치)
+RUN /opt/nvidia/deepstream/deepstream/user_additional_install.sh \
+    && apt-get install -y --reinstall --no-install-recommends libmp3lame0 libxvidcore4 \
+    && rm -rf /var/lib/apt/lists/*
+
+# PyTorch(Jetson wheel) 가 필요로 하는 libcupti.so.12 가 DeepStream 이미지에 없음
+# → Orin 호스트와 같은 NVIDIA Jetson 공식 apt 저장소에서 설치
+COPY deploy/jetson-ota-public.asc /etc/apt/trusted.gpg.d/jetson-ota-public.asc
+RUN echo "deb https://repo.download.nvidia.com/jetson/common r36.4 main" \
+        > /etc/apt/sources.list.d/nvidia-jetson-common.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends cuda-cupti-12-6 \
+    && echo /usr/local/cuda-12.6/targets/aarch64-linux/lib > /etc/ld.so.conf.d/cuda-cupti.conf \
+    && ldconfig \
+    && rm -rf /var/lib/apt/lists/*
+
+# 빌드 단계 확인: GStreamer 지원 opencv / 버전
+RUN python3 -c "import re, cv2, torch, torchvision, ultralytics; \
+assert re.search(r'GStreamer:\s+YES', cv2.getBuildInformation()), 'opencv GStreamer 없음'; \
+print('cv2', cv2.__version__, '| torch', torch.__version__, '| torchvision', torchvision.__version__, '| ultralytics', ultralytics.__version__)"
+
+WORKDIR /workspace/app
+
+COPY scripts/method1_integrated_inference.py scripts/
+COPY deploy/inference_service.py deploy/
+
+EXPOSE 8765
+
+ENTRYPOINT ["python3", "deploy/inference_service.py"]
+
+# 모델은 /models 로 마운트 (yolo/best.pt, cnn/best_*_efficientnet_b0.pth)
+CMD ["--source", "csi", "--roi", "240", "150", "1400", "932", \
+     "--yolo", "/models/yolo/best.pt", "--cnn-dir", "/models/cnn", "--device", "0"]

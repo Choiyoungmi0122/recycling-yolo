@@ -1,0 +1,53 @@
+{
+  "service_url": "http://127.0.0.1:8765",
+  "ui_host": "0.0.0.0",
+  "ui_port": 8080,
+  "standby_video": "media/standby.mp4",
+  "log_dir": "logs",
+
+  "nucleo": {
+    "mode": "mock"
+  },
+
+  "timing": {
+    "stabilize_seconds": 0.3,
+    "absent_seconds": 3.0,
+    "recognize_timeout_seconds": 4.0,
+    "max_retries": 2,
+    "retry_prompt_seconds": 3.0,
+    "guide_seconds": 5.0,
+    "insert_seconds": 8.0,
+    "failed_seconds": 5.0
+  },
+
+  "materials": {
+    "CAN": { "name": "캔", "cover": 1 },
+    "GLASS": { "name": "유리병", "cover": 2 },
+    "PET": { "name": "페트병", "cover": 3 },
+    "PLASTIC": { "name": "플라스틱", "cover": 4 }
+  },
+
+  "messages": {
+    "recognizing": "인식 중입니다…",
+    "open": "{name}입니다. 열린 수거함에 넣어주세요.",
+    "retry": "각도를 바꿔 다시 올려주세요.",
+    "failed": "판정하지 못했습니다. 일반 쓰레기통에 버려주세요."
+  },
+
+  "rules": {
+    "can_normal": { "action": "open" },
+    "can_dirty": { "action": "guide", "message": "내용물을 비우고 씻어서 다시 올려주세요." },
+
+    "glass_normal": { "action": "open" },
+    "glass_dirty": { "action": "guide", "message": "내용물을 비우고 씻어서 다시 올려주세요." },
+    "glass_packaging": { "action": "guide", "message": "라벨(포장)을 제거하고 다시 올려주세요." },
+
+    "pet_normal": { "action": "open" },
+    "pet_dirty": { "action": "guide", "message": "내용물을 비우고 씻어서 다시 올려주세요." },
+    "pet_packaging": { "action": "guide", "message": "라벨을 제거하고 다시 올려주세요." },
+    "pet_dirty_packaging": { "action": "guide", "message": "라벨을 제거하고 씻어서 다시 올려주세요." },
+
+    "plastic_normal": { "action": "open" },
+    "plastic_dirty": { "action": "guide", "message": "내용물을 비우고 씻어서 다시 올려주세요." }
+  }
+}
