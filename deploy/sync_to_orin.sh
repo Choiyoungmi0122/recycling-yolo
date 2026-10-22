@@ -36,6 +36,12 @@ if ls "$ROOT"/deploy/controller/media/standby/*.png >/dev/null 2>&1; then
     scp "$ROOT"/deploy/controller/media/standby/*.png "$HOST:~/$REMOTE/deploy/controller/media/standby/"
 fi
 
+# 대기 화면 원본 PDF 와 변환 도구도 Orin 에 보관 (Orin 에서 다시 변환할 때: pip3 install --user pymupdf)
+if ls "$ROOT"/monitor_video/*.pdf >/dev/null 2>&1; then
+    scp "$ROOT"/monitor_video/*.pdf "$HOST:~/$REMOTE/deploy/controller/media/"
+fi
+scp "$ROOT/deploy/tools/pdf_to_slides.py" "$HOST:~/$REMOTE/deploy/tools/"
+
 # Orin 에서 직접 조정하는 설정 파일은 처음 한 번만 복사 (덮어쓰지 않음)
 #   camera.env: ROI / 카메라,  config.json: 안내 문구 / 시간 / 커버 번호
 copy_once() {
