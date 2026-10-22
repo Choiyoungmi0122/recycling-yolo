@@ -6,7 +6,8 @@
 상태 흐름 (system_workflow 도식 기준)
     STANDBY      대기 영상. 물체가 stabilize_seconds 이상 감지되면 인식 시작
     RECOGNIZING  카메라 화면 + "인식 중". voting 확정 결과를 기다림
-      ├ normal            → ACCEPTED: 해당 커버 OPEN → insert_seconds 후 CLOSE → 대기
+      ├ normal            → ACCEPTED: OPEN,<ID> 전송 → NUCLEO 가 10초 뒤 자동으로 닫고
+      │                     CLOSED,<ID> 를 보내면 대기 (closed_timeout_seconds 안에 안 오면 CLOSE 후 대기)
       ├ dirty / packaging → GUIDE: 안내 문구 (커버 미개방) → guide_seconds 후 재인식
       └ 시간 초과         → RETRY: "각도를 바꿔…" → 재인식 (max_retries 회)
                              → FAILED: "일반 쓰레기통…" → 대기
@@ -35,6 +36,9 @@ import time
 import urllib.request
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+
+from nucleo import make_nucleo  # noqa: E402
 
 
 def now_str():
@@ -43,33 +47,6 @@ def now_str():
 
 def log(tag, text):
     print(f"[{now_str()}] [{tag}] {text}", flush=True)
-
-
-# ============================================================
-# NUCLEO (커버 / 버저)
-# 프로토콜 회의 전이라 mock 만 구현. 실제 통신은 같은 메서드로 클래스만 추가
-# ============================================================
-
-class MockNucleo:
-
-    def open_cover(self, cover):
-        log("nucleo", f"(mock) OPEN {cover}")
-
-    def close_cover(self, cover):
-        log("nucleo", f"(mock) CLOSE {cover}")
-
-    def buzz(self, kind):
-        log("nucleo", f"(mock) BUZZ {kind}")
-
-
-def make_nucleo(cfg):
-
-    mode = cfg.get("mode", "mock")
-
-    if mode == "mock":
-        return MockNucleo()
-
-    raise ValueError(f"아직 지원하지 않는 nucleo mode: {mode}")
 
 
 # ============================================================
@@ -304,6 +281,7 @@ class Controller:
         self.reset_time = 0.0
         self.open_cover = None
         self.last_class = None
+        self.nucleo_up = False
 
         self.detect_start = None
         self.last_seen = 0.0
@@ -348,9 +326,14 @@ class Controller:
         if rule["action"] == "open":
 
             self.open_cover = material["cover"]
-            self.nucleo.open_cover(self.open_cover)
+
+            if not self.nucleo.open_cover(self.open_cover):
+                self.door_error(now, "send_failed")
+                return
+
             self.nucleo.buzz("ok")
-            self.set_state("ACCEPTED", now + self.t["insert_seconds"])
+            # 정상이면 NUCLEO 가 10초 뒤 자동으로 닫고 CLOSED 를 보냄 → on_event 에서 대기로
+            self.set_state("ACCEPTED", now + self.t.get("closed_timeout_seconds", 20.0))
             self.camera_ui(
                 "ok",
                 f"{material['name']} · 재활용 가능",
@@ -364,12 +347,49 @@ class Controller:
             self.set_state("GUIDE", now + self.t["guide_seconds"])
             self.camera_ui("warn", f"{material['name']} · 추가 처리 필요", rule["message"])
 
+    def door_error(self, now, reason):
+        """문을 열지 못함 (송신 실패 / ERR / STOPPED) → 안내 후 대기"""
+        self.nucleo.buzz("error")
+        self.results.write(result="door_error", reason=reason, final_class=self.last_class,
+                           cover=self.open_cover, retries=self.retries)
+        self.open_cover = None
+        self.set_state("FAILED", now + self.t["failed_seconds"])
+        self.camera_ui("error", "수거함 오류", self.cfg["messages"].get(
+            "door_error", "수거함을 열 수 없습니다. 잠시 후 다시 시도해주세요."))
+
+    def on_nucleo(self, event, now):
+
+        if self.state != "ACCEPTED" or event.get("id") != self.open_cover:
+            return
+
+        msg = event["msg"]
+
+        if msg == "CLOSED":
+            self.results.write(result="accepted", final_class=self.last_class,
+                               cover=self.open_cover, retries=self.retries)
+            self.open_cover = None
+            self.go_standby()
+
+        elif msg == "ERR":
+            self.door_error(now, f"ERR_{event.get('code')}")
+
+        elif msg == "STOPPED":
+            self.door_error(now, "STOPPED")
+
     # --------------------------------------------------------
 
     def on_event(self, event, now):
 
         if event["type"] == "service":
             log("service", "연결됨" if event["up"] else f"연결 끊김: {event.get('error')}")
+            return
+
+        if event["type"] == "nucleo_link":
+            self.nucleo_up = event["up"]
+            return
+
+        if event["type"] == "nucleo":
+            self.on_nucleo(event, now)
             return
 
         if event["type"] == "frame":
@@ -427,9 +447,10 @@ class Controller:
             self.start_recognition(now)
 
         elif self.state == "ACCEPTED":
-            # 투입 감지 센서가 없어 시간 기준으로 닫음
+            # CLOSED 가 제한 시간 안에 오지 않음 → 예외 상황이므로 CLOSE 로 즉시 닫기 요청
+            log("nucleo", f"CLOSED,{self.open_cover} 이 오지 않음 → CLOSE 전송")
             self.nucleo.close_cover(self.open_cover)
-            self.results.write(result="accepted", final_class=self.last_class,
+            self.results.write(result="close_timeout", final_class=self.last_class,
                                cover=self.open_cover, retries=self.retries)
             self.open_cover = None
             self.go_standby()
@@ -476,7 +497,7 @@ def main():
     ServiceEventReader(cfg["service_url"], events).start()
 
     controller = Controller(
-        cfg, ui, make_nucleo(cfg["nucleo"]), ResultLogger(base / cfg["log_dir"]),
+        cfg, ui, make_nucleo(cfg["nucleo"], events), ResultLogger(base / cfg["log_dir"]),
     )
 
     log("ui", f"http://{cfg['ui_host']}:{cfg['ui_port']}/  (standby video: "

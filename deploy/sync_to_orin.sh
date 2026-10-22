@@ -25,7 +25,9 @@ scp "$ROOT/deploy/Dockerfile.orin" \
     "$ROOT/deploy/jetson-ota-public.asc" \
     "$HOST:~/$REMOTE/deploy/"
 
-scp "$ROOT/deploy/controller/controller.py" "$HOST:~/$REMOTE/deploy/controller/"
+scp "$ROOT/deploy/controller/controller.py" "$ROOT/deploy/controller/nucleo.py" "$HOST:~/$REMOTE/deploy/controller/"
+ssh "$HOST" "mkdir -p ~/$REMOTE/deploy/tools"
+scp "$ROOT/deploy/tools/fake_nucleo.py" "$HOST:~/$REMOTE/deploy/tools/"
 scp "$ROOT/deploy/controller/kiosk/index.html" "$HOST:~/$REMOTE/deploy/controller/kiosk/"
 
 # Orin 에서 직접 조정하는 설정 파일은 처음 한 번만 복사 (덮어쓰지 않음)

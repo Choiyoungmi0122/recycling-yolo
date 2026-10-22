@@ -6,7 +6,10 @@
   "log_dir": "logs",
 
   "nucleo": {
-    "mode": "mock"
+    "mode": "mock",
+    "host": "192.168.0.120",
+    "port": 5000,
+    "mock_hold_seconds": 10.0
   },
 
   "timing": {
@@ -16,7 +19,7 @@
     "max_retries": 2,
     "retry_prompt_seconds": 3.0,
     "guide_seconds": 5.0,
-    "insert_seconds": 8.0,
+    "closed_timeout_seconds": 20.0,
     "failed_seconds": 5.0
   },
 
@@ -31,7 +34,8 @@
     "recognizing": "인식 중입니다…",
     "open": "{name}입니다. 열린 수거함에 넣어주세요.",
     "retry": "각도를 바꿔 다시 올려주세요.",
-    "failed": "판정하지 못했습니다. 일반 쓰레기통에 버려주세요."
+    "failed": "판정하지 못했습니다. 일반 쓰레기통에 버려주세요.",
+    "door_error": "수거함을 열 수 없습니다. 잠시 후 다시 시도해주세요."
   },
 
   "rules": {

@@ -47,6 +47,7 @@ SERVICE_ARGS=(
 
 CSI_ARGS=(
     --source csi
+    --csi-sensor-id "${CSI_SENSOR_ID:-0}"
     --csi-sensor-mode "$CSI_SENSOR_MODE" --csi-width "$CSI_WIDTH"
     --csi-height "$CSI_HEIGHT" --csi-fps "$CSI_FPS" --csi-flip "$CSI_FLIP"
 )

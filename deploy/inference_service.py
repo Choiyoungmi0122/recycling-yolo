@@ -61,10 +61,10 @@ MATERIAL_COLORS = {
 # 입력
 # ============================================================
 
-def csi_pipeline(sensor_mode, width, height, fps, flip_method):
+def csi_pipeline(sensor_id, sensor_mode, width, height, fps, flip_method):
 
     return (
-        f"nvarguscamerasrc sensor-mode={sensor_mode} ! "
+        f"nvarguscamerasrc sensor-id={sensor_id} sensor-mode={sensor_mode} ! "
         f"video/x-raw(memory:NVMM), width={width}, height={height}, "
         f"framerate={fps}/1, format=NV12 ! "
         f"nvvidconv flip-method={flip_method} ! "
@@ -147,7 +147,7 @@ def open_source(args):
 
     if args.source == "csi":
         pipeline = csi_pipeline(
-            args.csi_sensor_mode, args.csi_width, args.csi_height,
+            args.csi_sensor_id, args.csi_sensor_mode, args.csi_width, args.csi_height,
             args.csi_fps, args.csi_flip,
         )
         print(f"[source] CSI: {pipeline}")
@@ -510,6 +510,8 @@ def parse_args():
                         help="영상 파일을 원본 fps 속도로 재생")
     parser.add_argument("--loop", action="store_true", help="영상 파일 반복")
 
+    parser.add_argument("--csi-sensor-id", type=int, default=0,
+                        help="Argus 카메라 번호 (Jetson-IO 에서 인식된 순서, 물리 포트 번호와 다를 수 있음)")
     parser.add_argument("--csi-sensor-mode", type=int, default=3)
     parser.add_argument("--csi-width", type=int, default=1640)
     parser.add_argument("--csi-height", type=int, default=1232)
