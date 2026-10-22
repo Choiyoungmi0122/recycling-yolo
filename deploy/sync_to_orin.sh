@@ -22,6 +22,7 @@ scp "$ROOT/deploy/Dockerfile.orin" \
     "$ROOT/deploy/inference_service.py" \
     "$ROOT/deploy/run_orin.sh" \
     "$ROOT/deploy/start_kiosk.sh" \
+    "$ROOT/deploy/kiosk.sh" \
     "$ROOT/deploy/jetson-ota-public.asc" \
     "$HOST:~/$REMOTE/deploy/"
 
@@ -55,7 +56,7 @@ copy_once deploy/controller/config.json deploy/controller/config.json
 
 scp "$ROOT/scripts/method1_integrated_inference.py" "$HOST:~/$REMOTE/scripts/"
 
-ssh "$HOST" "chmod +x ~/$REMOTE/deploy/run_orin.sh ~/$REMOTE/deploy/start_kiosk.sh"
+ssh "$HOST" "chmod +x ~/$REMOTE/deploy/run_orin.sh ~/$REMOTE/deploy/start_kiosk.sh ~/$REMOTE/deploy/kiosk.sh"
 
 if [[ "${1:-}" == "--models" ]]; then
 

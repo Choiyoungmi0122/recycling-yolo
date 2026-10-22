@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Orin 호스트에서 실행: 컨트롤러 + 키오스크 화면 (추론 서비스 컨테이너는 run_orin.sh 로 먼저 실행)
+# Orin 호스트에서 실행: 컨트롤러 + 키오스크 화면 (터미널에 붙여서 수동 실행)
+# 평소 운영은 deploy/kiosk.sh (자동 실행 / start / stop / restart) 사용
+# (추론 서비스 컨테이너는 run_orin.sh 로 먼저 실행)
 #
 #   ./deploy/start_kiosk.sh            컨트롤러 실행 + 모니터에 Chromium 전체화면
 #   ./deploy/start_kiosk.sh --no-ui    컨트롤러만 (원격 PC 브라우저로 http://<orin>:8080 확인)
@@ -10,6 +12,12 @@
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+# 자동 실행(deploy/kiosk.sh) 이 이미 켜져 있으면 포트 8080 이 겹침
+if (exec 3<>/dev/tcp/127.0.0.1/8080) 2>/dev/null; then
+    echo "키오스크가 이미 실행 중입니다. 끄려면: ./deploy/kiosk.sh stop  (상태: ./deploy/kiosk.sh status)"
+    exit 1
+fi
 
 python3 "$APP_DIR/deploy/controller/controller.py" &
 CONTROLLER_PID=$!
