@@ -1,0 +1,697 @@
+{
+  "test_list": "E:\\recycling_data\\test_final.txt",
+  "images": 7680,
+  "settings": {
+    "imgsz": 640,
+    "map_conf": 0.001,
+    "deploy_conf": 0.25,
+    "method1_confidence": "yolo_conf * cnn_conf",
+    "cnn_autocast_fp16": true,
+    "primary_rule": "largest pred box (yolo conf >= deploy_conf) vs largest GT box, correct = same class and IoU >= 0.5"
+  },
+  "models": {
+    "yolo4": "E:\\recycling_data\\runs\\recycling-yolo-comparison\\yolo26s_4class_common30_rerun-2\\weights\\best.pt",
+    "yolo11": "E:\\recycling_data\\runs\\recycling-yolo-comparison\\yolo26s_common30-2\\weights\\best.pt",
+    "cnn": {
+      "can": "E:\\recycling_data\\runs\\can-efficientnet-b0\\best_can_efficientnet_b0.pth",
+      "glass": "E:\\recycling_data\\runs\\glass-efficientnet-b0\\best_glass_efficientnet_b0.pth",
+      "pet": "E:\\recycling_data\\runs\\pet-efficientnet-b0\\best_pet_efficientnet_b0.pth",
+      "plastic": "E:\\recycling_data\\runs\\plastic-efficientnet-b0\\best_plastic_efficientnet_b0.pth"
+    }
+  },
+  "detection": {
+    "method1": {
+      "precision": 0.8260104993621902,
+      "recall": 0.7997923421890852,
+      "map50": 0.771697436082809,
+      "map50_95": 0.7508688971752291,
+      "per_class": {
+        "can_normal": {
+          "instances": 1606,
+          "p": 0.8996487665359547,
+          "r": 0.8430884184308842,
+          "map50": 0.8425058877277414,
+          "map50_95": 0.8154314649731245
+        },
+        "can_dirty": {
+          "instances": 442,
+          "p": 0.6683535772831048,
+          "r": 0.6515837104072398,
+          "map50": 0.5459748055671025,
+          "map50_95": 0.5355550916983984
+        },
+        "glass_normal": {
+          "instances": 1098,
+          "p": 0.9142456107674062,
+          "r": 0.9225865209471766,
+          "map50": 0.913581216639055,
+          "map50_95": 0.9023203022638479
+        },
+        "glass_dirty": {
+          "instances": 457,
+          "p": 0.8185254528966266,
+          "r": 0.8293216630196937,
+          "map50": 0.7965200805947411,
+          "map50_95": 0.7918793225162727
+        },
+        "glass_packaging": {
+          "instances": 1662,
+          "p": 0.9617347363787029,
+          "r": 0.9326113116726835,
+          "map50": 0.9461077525782275,
+          "map50_95": 0.919327763004018
+        },
+        "pet_normal": {
+          "instances": 411,
+          "p": 0.859723066100512,
+          "r": 0.8418491484184915,
+          "map50": 0.8043738154932775,
+          "map50_95": 0.7864979864826985
+        },
+        "pet_dirty": {
+          "instances": 344,
+          "p": 0.8157223798608616,
+          "r": 0.8621585168246859,
+          "map50": 0.8430135289611023,
+          "map50_95": 0.835582628883417
+        },
+        "pet_packaging": {
+          "instances": 1017,
+          "p": 0.8277057064135646,
+          "r": 0.7826941986234022,
+          "map50": 0.743811273219679,
+          "map50_95": 0.7135039110448542
+        },
+        "pet_dirty_packaging": {
+          "instances": 459,
+          "p": 0.6695747860373372,
+          "r": 0.6401499362757309,
+          "map50": 0.5601150819941468,
+          "map50_95": 0.5410736182099419
+        },
+        "plastic_normal": {
+          "instances": 1695,
+          "p": 0.8286509231121475,
+          "r": 0.7687315634218289,
+          "map50": 0.7604740271617554,
+          "map50_95": 0.7161280830512269
+        },
+        "plastic_dirty": {
+          "instances": 1469,
+          "p": 0.8222304875978741,
+          "r": 0.7229407760381211,
+          "map50": 0.7321943269740707,
+          "map50_95": 0.7022576967997191
+        }
+      }
+    },
+    "method2": {
+      "precision": 0.7970029699006834,
+      "recall": 0.8291861557875287,
+      "map50": 0.8613973728993382,
+      "map50_95": 0.8378476228662382,
+      "per_class": {
+        "can_normal": {
+          "instances": 1606,
+          "p": 0.8637031091197577,
+          "r": 0.8929016189290162,
+          "map50": 0.9258603843198441,
+          "map50_95": 0.8952842755131074
+        },
+        "can_dirty": {
+          "instances": 442,
+          "p": 0.6322462354811996,
+          "r": 0.6538461538461539,
+          "map50": 0.6837311882250647,
+          "map50_95": 0.6714994374783263
+        },
+        "glass_normal": {
+          "instances": 1098,
+          "p": 0.8848355771399226,
+          "r": 0.9599271402550091,
+          "map50": 0.9586195855890031,
+          "map50_95": 0.9490547178870926
+        },
+        "glass_dirty": {
+          "instances": 457,
+          "p": 0.8292491744265716,
+          "r": 0.8315098468271335,
+          "map50": 0.8995863288737875,
+          "map50_95": 0.8927389835201589
+        },
+        "glass_packaging": {
+          "instances": 1662,
+          "p": 0.9547282504570334,
+          "r": 0.9344163658243081,
+          "map50": 0.9617554343160629,
+          "map50_95": 0.9383055241069232
+        },
+        "pet_normal": {
+          "instances": 411,
+          "p": 0.7906350710763774,
+          "r": 0.9463845083046949,
+          "map50": 0.9152023724157569,
+          "map50_95": 0.8963474115940269
+        },
+        "pet_dirty": {
+          "instances": 344,
+          "p": 0.8431410406573848,
+          "r": 0.8401162790697675,
+          "map50": 0.9194963619011951,
+          "map50_95": 0.9109120963001462
+        },
+        "pet_packaging": {
+          "instances": 1017,
+          "p": 0.7691466364535361,
+          "r": 0.8348082595870207,
+          "map50": 0.8577459172788764,
+          "map50_95": 0.8216045949201496
+        },
+        "pet_dirty_packaging": {
+          "instances": 459,
+          "p": 0.6320482598419224,
+          "r": 0.6623996240694084,
+          "map50": 0.6835174754902409,
+          "map50_95": 0.6578689745794181
+        },
+        "plastic_normal": {
+          "instances": 1695,
+          "p": 0.7729377645349496,
+          "r": 0.8336283185840708,
+          "map50": 0.8469530587349954,
+          "map50_95": 0.7956720148528056
+        },
+        "plastic_dirty": {
+          "instances": 1469,
+          "p": 0.794361549718864,
+          "r": 0.7311095983662356,
+          "map50": 0.8229029947478924,
+          "map50_95": 0.787035820776465
+        }
+      }
+    }
+  },
+  "primary": {
+    "method1": {
+      "images": 7680,
+      "accuracy_11class": 0.8338541666666667,
+      "accuracy_material": 0.9493489583333333,
+      "no_detection_rate": 0.017578125,
+      "low_iou_rate": 0.017317708333333334,
+      "macro_recall": 0.8205552059461891,
+      "per_class": {
+        "can_normal": {
+          "support": 855,
+          "recall": 0.8654970760233918,
+          "precision": 0.8948004836759371
+        },
+        "can_dirty": {
+          "support": 219,
+          "recall": 0.7123287671232876,
+          "precision": 0.6724137931034483
+        },
+        "glass_normal": {
+          "support": 1055,
+          "recall": 0.933649289099526,
+          "precision": 0.9222846441947565
+        },
+        "glass_dirty": {
+          "support": 445,
+          "recall": 0.8359550561797753,
+          "precision": 0.8285077951002228
+        },
+        "glass_packaging": {
+          "support": 1043,
+          "recall": 0.9424736337488016,
+          "precision": 0.9646712463199215
+        },
+        "pet_normal": {
+          "support": 378,
+          "recall": 0.8624338624338624,
+          "precision": 0.8624338624338624
+        },
+        "pet_dirty": {
+          "support": 340,
+          "recall": 0.8705882352941177,
+          "precision": 0.8338028169014085
+        },
+        "pet_packaging": {
+          "support": 755,
+          "recall": 0.7920529801324503,
+          "precision": 0.8147138964577657
+        },
+        "pet_dirty_packaging": {
+          "support": 336,
+          "recall": 0.6428571428571429,
+          "precision": 0.6486486486486487
+        },
+        "plastic_normal": {
+          "support": 1212,
+          "recall": 0.8168316831683168,
+          "precision": 0.8368554522400676
+        },
+        "plastic_dirty": {
+          "support": 1042,
+          "recall": 0.7514395393474088,
+          "precision": 0.8097207859358841
+        }
+      },
+      "confusion_matrix": {
+        "rows_gt": [
+          "can_normal",
+          "can_dirty",
+          "glass_normal",
+          "glass_dirty",
+          "glass_packaging",
+          "pet_normal",
+          "pet_dirty",
+          "pet_packaging",
+          "pet_dirty_packaging",
+          "plastic_normal",
+          "plastic_dirty"
+        ],
+        "cols_pred": [
+          "can_normal",
+          "can_dirty",
+          "glass_normal",
+          "glass_dirty",
+          "glass_packaging",
+          "pet_normal",
+          "pet_dirty",
+          "pet_packaging",
+          "pet_dirty_packaging",
+          "plastic_normal",
+          "plastic_dirty",
+          "no_detection"
+        ],
+        "values": [
+          [
+            740,
+            69,
+            1,
+            0,
+            4,
+            0,
+            0,
+            3,
+            1,
+            9,
+            10,
+            18
+          ],
+          [
+            55,
+            156,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            2,
+            4
+          ],
+          [
+            0,
+            1,
+            985,
+            54,
+            8,
+            2,
+            1,
+            0,
+            0,
+            2,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            67,
+            372,
+            2,
+            0,
+            3,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            4,
+            2,
+            12,
+            18,
+            983,
+            0,
+            0,
+            4,
+            2,
+            4,
+            6,
+            8
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            326,
+            41,
+            7,
+            2,
+            2,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            4,
+            0,
+            36,
+            296,
+            0,
+            3,
+            0,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0,
+            0,
+            3,
+            8,
+            5,
+            598,
+            100,
+            13,
+            6,
+            19
+          ],
+          [
+            2,
+            0,
+            0,
+            0,
+            2,
+            6,
+            6,
+            88,
+            216,
+            3,
+            1,
+            12
+          ],
+          [
+            9,
+            0,
+            1,
+            1,
+            5,
+            0,
+            1,
+            11,
+            2,
+            990,
+            156,
+            36
+          ],
+          [
+            15,
+            3,
+            2,
+            0,
+            11,
+            0,
+            2,
+            22,
+            7,
+            160,
+            783,
+            37
+          ]
+        ]
+      }
+    },
+    "method2": {
+      "images": 7680,
+      "accuracy_11class": 0.8328125,
+      "accuracy_material": 0.9483072916666667,
+      "no_detection_rate": 0.01953125,
+      "low_iou_rate": 0.01484375,
+      "macro_recall": 0.8066951130464552,
+      "per_class": {
+        "can_normal": {
+          "support": 855,
+          "recall": 0.8771929824561403,
+          "precision": 0.8710801393728222
+        },
+        "can_dirty": {
+          "support": 219,
+          "recall": 0.6118721461187214,
+          "precision": 0.6907216494845361
+        },
+        "glass_normal": {
+          "support": 1055,
+          "recall": 0.9535545023696682,
+          "precision": 0.9120580235720761
+        },
+        "glass_dirty": {
+          "support": 445,
+          "recall": 0.8067415730337079,
+          "precision": 0.8713592233009708
+        },
+        "glass_packaging": {
+          "support": 1043,
+          "recall": 0.9443911792905082,
+          "precision": 0.9619140625
+        },
+        "pet_normal": {
+          "support": 378,
+          "recall": 0.917989417989418,
+          "precision": 0.8164705882352942
+        },
+        "pet_dirty": {
+          "support": 340,
+          "recall": 0.8,
+          "precision": 0.8888888888888888
+        },
+        "pet_packaging": {
+          "support": 755,
+          "recall": 0.8264900662251655,
+          "precision": 0.8010269576379975
+        },
+        "pet_dirty_packaging": {
+          "support": 336,
+          "recall": 0.5803571428571429,
+          "precision": 0.7014388489208633
+        },
+        "plastic_normal": {
+          "support": 1212,
+          "recall": 0.8448844884488449,
+          "precision": 0.8126984126984127
+        },
+        "plastic_dirty": {
+          "support": 1042,
+          "recall": 0.710172744721689,
+          "precision": 0.8333333333333334
+        }
+      },
+      "confusion_matrix": {
+        "rows_gt": [
+          "can_normal",
+          "can_dirty",
+          "glass_normal",
+          "glass_dirty",
+          "glass_packaging",
+          "pet_normal",
+          "pet_dirty",
+          "pet_packaging",
+          "pet_dirty_packaging",
+          "plastic_normal",
+          "plastic_dirty"
+        ],
+        "cols_pred": [
+          "can_normal",
+          "can_dirty",
+          "glass_normal",
+          "glass_dirty",
+          "glass_packaging",
+          "pet_normal",
+          "pet_dirty",
+          "pet_packaging",
+          "pet_dirty_packaging",
+          "plastic_normal",
+          "plastic_dirty",
+          "no_detection"
+        ],
+        "values": [
+          [
+            750,
+            57,
+            1,
+            0,
+            3,
+            0,
+            0,
+            4,
+            1,
+            13,
+            6,
+            20
+          ],
+          [
+            75,
+            134,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            2,
+            5
+          ],
+          [
+            0,
+            0,
+            1006,
+            36,
+            9,
+            3,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            77,
+            359,
+            5,
+            0,
+            3,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            14,
+            13,
+            985,
+            0,
+            0,
+            7,
+            3,
+            3,
+            7,
+            8
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            347,
+            20,
+            7,
+            1,
+            2,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            3,
+            0,
+            63,
+            272,
+            2,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            3,
+            1,
+            1,
+            0,
+            6,
+            9,
+            1,
+            624,
+            69,
+            14,
+            6,
+            21
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            2,
+            2,
+            8,
+            108,
+            195,
+            4,
+            3,
+            13
+          ],
+          [
+            9,
+            0,
+            3,
+            1,
+            5,
+            0,
+            1,
+            4,
+            3,
+            1024,
+            122,
+            40
+          ],
+          [
+            21,
+            1,
+            1,
+            0,
+            8,
+            1,
+            1,
+            23,
+            5,
+            198,
+            740,
+            43
+          ]
+        ]
+      }
+    }
+  },
+  "seconds": 1199.6999262000027
+}
