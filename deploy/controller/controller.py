@@ -282,6 +282,7 @@ class Controller:
         self.open_cover = None
         self.last_class = None
         self.nucleo_up = False
+        self.service_up = None
 
         self.detect_start = None
         self.last_seen = 0.0
@@ -381,7 +382,11 @@ class Controller:
     def on_event(self, event, now):
 
         if event["type"] == "service":
-            log("service", "연결됨" if event["up"] else f"연결 끊김: {event.get('error')}")
+            # 재연결 시도마다 같은 로그가 반복되지 않도록 상태가 바뀔 때만 기록
+            if event["up"] != self.service_up:
+                self.service_up = event["up"]
+                log("service", "연결됨" if event["up"] else
+                    f"연결 안 됨 (추론 서비스가 꺼져 있음, 2초마다 재시도): {event.get('error')}")
             return
 
         if event["type"] == "nucleo_link":
@@ -480,10 +485,25 @@ def main():
     media_root = (base / "media").resolve()
     media_root.mkdir(exist_ok=True)
 
+    # 대기 화면: 슬라이드(PNG 폴더) > 영상 > 기본 문구 순으로 사용
     standby_video = cfg.get("standby_video", "")
+    slides_dir = base / cfg.get("standby_slides_dir", "media/standby")
+    slides = sorted(slides_dir.glob("*.png")) if slides_dir.is_dir() else []
+
     kiosk_config = {
         "standby_video": "/" + standby_video if (base / standby_video).is_file() else None,
+        "standby_slides": ["/" + s.relative_to(base).as_posix() for s in slides],
+        "standby_slide_seconds": cfg.get("standby_slide_seconds", 8),
+        "standby_background": cfg.get("standby_background", "#f9f9f9"),
+        # 슬라이드 바깥 틀 (None 이면 틀 없이 슬라이드만)
+        "standby_frame": cfg.get("standby_frame",
+                                 {"color": "#7abe6b", "line": "#252525", "width": 12}),
     }
+
+    if slides:
+        standby_desc = f"슬라이드 {len(slides)}장, {kiosk_config['standby_slide_seconds']}초 간격"
+    else:
+        standby_desc = kiosk_config["standby_video"] or "없음 - 기본 대기 화면"
 
     ui = UiHub()
     events = queue.Queue()
@@ -500,8 +520,7 @@ def main():
         cfg, ui, make_nucleo(cfg["nucleo"], events), ResultLogger(base / cfg["log_dir"]),
     )
 
-    log("ui", f"http://{cfg['ui_host']}:{cfg['ui_port']}/  (standby video: "
-              f"{kiosk_config['standby_video'] or '없음 - 기본 대기 화면'})")
+    log("ui", f"http://{cfg['ui_host']}:{cfg['ui_port']}/  (대기 화면: {standby_desc})")
     log("service", cfg["service_url"])
 
     try:

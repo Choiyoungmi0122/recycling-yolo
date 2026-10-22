@@ -3,6 +3,10 @@
   "ui_host": "0.0.0.0",
   "ui_port": 8080,
   "standby_video": "media/standby.mp4",
+  "standby_slides_dir": "media/standby",
+  "standby_slide_seconds": 8,
+  "standby_background": "#f9f9f9",
+  "standby_frame": { "color": "#7abe6b", "line": "#252525", "width": 12 },
   "log_dir": "logs",
 
   "nucleo": {

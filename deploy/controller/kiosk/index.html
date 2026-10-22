@@ -23,6 +23,10 @@
 
   #standby { flex-direction: column; align-items: center; justify-content: center; gap: 2.5vh; }
   #standby video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* 슬라이드: 16:9 슬라이드를 화면에 맞추고 남는 띠는 슬라이드 테두리 색으로 채움 */
+  #standby .slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    opacity: 0; transition: opacity 0.8s ease; }
+  #standby .slide.show { opacity: 1; }
   #standby .placeholder h1 { font-size: 7vh; font-weight: 700; text-align: center; }
   #standby .placeholder p { font-size: 3.4vh; color: var(--muted); text-align: center; margin-top: 2vh; }
 
@@ -79,7 +83,9 @@ async function init() {
   const cfg = await fetch("/config.json").then(r => r.json());
   streamUrl = "/stream.mjpg";  // 컨트롤러가 추론 서비스 스트림을 중계
 
-  if (cfg.standby_video) {
+  if (cfg.standby_slides && cfg.standby_slides.length) {
+    startSlides(cfg.standby_slides, cfg.standby_slide_seconds, cfg.standby_background, cfg.standby_frame);
+  } else if (cfg.standby_video) {
     standby.innerHTML = "";
     const video = document.createElement("video");
     Object.assign(video, { src: cfg.standby_video, autoplay: true, muted: true, loop: true, playsInline: true });
@@ -90,6 +96,47 @@ async function init() {
   es.onopen = () => { document.getElementById("offline").style.display = "none"; };
   es.onerror = () => { document.getElementById("offline").style.display = "block"; };
   es.onmessage = e => render(JSON.parse(e.data));
+}
+
+// 대기 화면 슬라이드쇼: 이미지 전부 미리 올려두고 opacity 로 교차 전환
+// frame 이 있으면 모니터 가장자리에 틀(어두운 선 + 초록 + 어두운 선)을 그리고 그 안에 슬라이드
+function startSlides(urls, seconds, background, frame) {
+  standby.innerHTML = "";
+  standby.style.background = background || "#000";
+
+  let holder = standby;
+  if (frame) {
+    const outer = document.createElement("div");
+    outer.style.cssText = `position:absolute; inset:0; border:2px solid ${frame.line};`;
+    const green = document.createElement("div");
+    green.style.cssText = `position:absolute; inset:0; border:${frame.width}px solid ${frame.color};`;
+    const panel = document.createElement("div");
+    panel.style.cssText = `position:absolute; inset:0; border:2px solid ${frame.line}; background:${background};`;
+    green.appendChild(panel);
+    outer.appendChild(green);
+    standby.appendChild(outer);
+    holder = panel;
+  }
+
+  const imgs = urls.map(url => {
+    const img = document.createElement("img");
+    img.className = "slide";
+    img.src = url;
+    img.alt = "";
+    holder.appendChild(img);
+    return img;
+  });
+
+  let i = 0;
+  imgs[0].classList.add("show");
+
+  if (imgs.length > 1) {
+    setInterval(() => {
+      imgs[i].classList.remove("show");
+      i = (i + 1) % imgs.length;
+      imgs[i].classList.add("show");
+    }, Math.max(1, seconds) * 1000);
+  }
 }
 
 function render(s) {

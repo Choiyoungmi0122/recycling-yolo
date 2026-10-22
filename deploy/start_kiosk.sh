@@ -17,7 +17,16 @@ trap 'kill $CONTROLLER_PID 2>/dev/null' EXIT
 
 if [[ "${1:-}" != "--no-ui" ]]; then
 
-    export DISPLAY="${DISPLAY:-:0}"
+    # SSH / 원격 터미널에서 실행하면 DISPLAY 가 없음 → 로그인된 데스크톱 화면을 찾아 사용
+    #   (Orin 은 GDM 로그인 화면이 :0, 사용자 데스크톱이 :1 인 경우가 많음)
+    if [[ -z "${DISPLAY:-}" ]]; then
+        X_SOCKET="$(ls /tmp/.X11-unix/ 2>/dev/null | sort -V | tail -1)"
+        export DISPLAY=":${X_SOCKET#X}"
+    fi
+    if [[ -z "${XAUTHORITY:-}" && -f "/run/user/$(id -u)/gdm/Xauthority" ]]; then
+        export XAUTHORITY="/run/user/$(id -u)/gdm/Xauthority"
+    fi
+    echo "모니터 화면: DISPLAY=$DISPLAY"
     sleep 2
 
     if BROWSER="$(command -v chromium-browser || command -v chromium)"; then

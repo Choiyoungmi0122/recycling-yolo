@@ -30,6 +30,12 @@ ssh "$HOST" "mkdir -p ~/$REMOTE/deploy/tools"
 scp "$ROOT/deploy/tools/fake_nucleo.py" "$HOST:~/$REMOTE/deploy/tools/"
 scp "$ROOT/deploy/controller/kiosk/index.html" "$HOST:~/$REMOTE/deploy/controller/kiosk/"
 
+# 대기 화면 슬라이드 (deploy/tools/pdf_to_slides.py 로 만든 PNG) - 기존 것을 지우고 새로 복사
+if ls "$ROOT"/deploy/controller/media/standby/*.png >/dev/null 2>&1; then
+    ssh "$HOST" "mkdir -p ~/$REMOTE/deploy/controller/media/standby && rm -f ~/$REMOTE/deploy/controller/media/standby/*.png"
+    scp "$ROOT"/deploy/controller/media/standby/*.png "$HOST:~/$REMOTE/deploy/controller/media/standby/"
+fi
+
 # Orin 에서 직접 조정하는 설정 파일은 처음 한 번만 복사 (덮어쓰지 않음)
 #   camera.env: ROI / 카메라,  config.json: 안내 문구 / 시간 / 커버 번호
 copy_once() {
