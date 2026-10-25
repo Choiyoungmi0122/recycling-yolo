@@ -6,6 +6,7 @@
 #   ./deploy/run_all.sh          전부 켜기
 #   ./deploy/run_all.sh stop     전부 끄기
 #   ./deploy/run_all.sh status   상태 보기
+#   ./deploy/run_all.sh network  NUCLEO 네트워크만 설정·확인 (유선 직결 설정은 처음 한 번 sudo)
 #
 # 설정 파일
 #   deploy/camera.env              카메라 / ROI
@@ -147,6 +148,14 @@ case "${1:-start}" in
         docker stop "$CONTAINER" >/dev/null 2>&1 && echo "[all] 추론 서비스: 종료"
         ;;
 
+    network)
+        check_nucleo
+        echo
+        echo "유선 포트: carrier=$(cat /sys/class/net/eno1/carrier 2>/dev/null || echo ?) (1 = 랜선 연결됨)"
+        ip -4 -br addr show eno1 2>/dev/null
+        ping -c 2 -W 1 "$NUCLEO_HOST" 2>&1 | tail -2
+        ;;
+
     status)
         ./deploy/kiosk.sh status
         if service_up; then echo "추론 서비스: 실행 중"; else echo "추론 서비스: 꺼짐"; fi
@@ -154,7 +163,7 @@ case "${1:-start}" in
         ;;
 
     *)
-        sed -n '2,15p' "$0"
+        sed -n '2,16p' "$0"
         exit 1
         ;;
 esac
