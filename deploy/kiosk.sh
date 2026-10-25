@@ -83,6 +83,14 @@ restore_desktop_settings() {
     say "데스크톱 설정: 원래대로 (모서리 / Super 키 / 알림)"
 }
 
+# 로그인 직후 GNOME 이 '활동' 화면을 띄우면 키오스크 창이 작은 미리보기로 보임 → 닫기
+close_overview() {
+    DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}" \
+        gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell \
+        --method org.freedesktop.DBus.Properties.Set org.gnome.Shell OverviewActive "<false>" \
+        >/dev/null 2>&1
+}
+
 controller_running() {
     [[ -f "$PGID_FILE" ]] && kill -0 -- "-$(cat "$PGID_FILE")" 2>/dev/null
 }
@@ -167,6 +175,11 @@ start_browser() {
             >>"$LOG" 2>&1 < /dev/null &
     fi
     disown || true
+
+    # 브라우저가 뜨는 동안 / 로그인 직후 '활동' 화면이 열려 있으면 20초 동안 계속 닫아 줌
+    ( for _ in $(seq 1 20); do close_overview; sleep 1; done ) >/dev/null 2>&1 &
+    disown || true
+
     say "브라우저: 시작 (DISPLAY=$DISPLAY)"
 }
 

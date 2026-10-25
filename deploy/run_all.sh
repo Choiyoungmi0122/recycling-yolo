@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # 전체 실행 (Orin 터미널에서 이것 하나만)
-#   추론 서비스(Docker + CSI 카메라) → 키오스크(대기 슬라이드 → 물체 감지 시 카메라 화면) → NUCLEO TCP
+#   대기 슬라이드 먼저 표시 → NUCLEO 연결 확인 → 추론 서비스(Docker + CSI 카메라) 시작
+#   (추론 서비스가 뜨면 컨트롤러가 자동으로 연결되어, 물체 감지 시 카메라 화면으로 전환)
 #
 #   ./deploy/run_all.sh          전부 켜기
 #   ./deploy/run_all.sh stop     전부 끄기
@@ -40,7 +41,7 @@ service_up() { curl -s -m 1 http://127.0.0.1:8765/status >/dev/null 2>&1; }
 # ------------------------------------------------------------
 check_nucleo() {
 
-    step "1/4 NUCLEO 연결 확인 ($NUCLEO_MODE · $NUCLEO_HOST:$NUCLEO_PORT)"
+    step "2/4 NUCLEO 연결 확인 ($NUCLEO_MODE · $NUCLEO_HOST:$NUCLEO_PORT)"
 
     if [[ "$NUCLEO_MODE" != "tcp" ]]; then
         echo "mock 모드 (가짜 NUCLEO) → 실제 문은 움직이지 않음"
@@ -79,7 +80,7 @@ check_nucleo() {
 # ------------------------------------------------------------
 start_service() {
 
-    step "2/4 추론 서비스 (Docker + 카메라)"
+    step "3/4 추론 서비스 (Docker + 카메라)"
 
     if docker ps --format '{{.Names}}' | grep -qx "$CONTAINER" && service_up; then
         echo "이미 실행 중"
@@ -113,8 +114,8 @@ start_service() {
 
 # ------------------------------------------------------------
 start_kiosk() {
-    step "3/4 키오스크 (대기 슬라이드 → 물체 감지 시 카메라 화면)"
-    # 새 설정(NUCLEO 주소 등)을 읽도록 다시 시작
+    step "1/4 대기 슬라이드 표시"
+    # 새 설정(NUCLEO 주소 등)을 읽도록 다시 시작. 추론 서비스는 나중에 켜져도 컨트롤러가 자동 연결
     ./deploy/kiosk.sh restart
 }
 
@@ -135,9 +136,9 @@ summary() {
 case "${1:-start}" in
 
     start)
-        check_nucleo
-        start_service || { echo; echo "추론 서비스 없이 키오스크(슬라이드)만 켭니다"; }
         start_kiosk
+        check_nucleo
+        start_service || { echo; echo "추론 서비스 없이 슬라이드만 표시 중입니다 (물체 감지 안 됨)"; }
         summary
         ;;
 
