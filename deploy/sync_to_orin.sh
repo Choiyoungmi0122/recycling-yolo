@@ -23,12 +23,13 @@ scp "$ROOT/deploy/Dockerfile.orin" \
     "$ROOT/deploy/run_orin.sh" \
     "$ROOT/deploy/start_kiosk.sh" \
     "$ROOT/deploy/kiosk.sh" \
+    "$ROOT/deploy/run_all.sh" \
     "$ROOT/deploy/jetson-ota-public.asc" \
     "$HOST:~/$REMOTE/deploy/"
 
 scp "$ROOT/deploy/controller/controller.py" "$ROOT/deploy/controller/nucleo.py" "$HOST:~/$REMOTE/deploy/controller/"
 ssh "$HOST" "mkdir -p ~/$REMOTE/deploy/tools"
-scp "$ROOT/deploy/tools/fake_nucleo.py" "$HOST:~/$REMOTE/deploy/tools/"
+scp "$ROOT/deploy/tools/fake_nucleo.py" "$ROOT/deploy/tools/nucleo_test.py" "$HOST:~/$REMOTE/deploy/tools/"
 scp "$ROOT/deploy/controller/kiosk/index.html" "$HOST:~/$REMOTE/deploy/controller/kiosk/"
 
 # 대기 화면 슬라이드 (deploy/tools/pdf_to_slides.py 로 만든 PNG) - 기존 것을 지우고 새로 복사
@@ -56,7 +57,7 @@ copy_once deploy/controller/config.json deploy/controller/config.json
 
 scp "$ROOT/scripts/method1_integrated_inference.py" "$HOST:~/$REMOTE/scripts/"
 
-ssh "$HOST" "chmod +x ~/$REMOTE/deploy/run_orin.sh ~/$REMOTE/deploy/start_kiosk.sh ~/$REMOTE/deploy/kiosk.sh"
+ssh "$HOST" "chmod +x ~/$REMOTE/deploy/run_orin.sh ~/$REMOTE/deploy/start_kiosk.sh ~/$REMOTE/deploy/kiosk.sh ~/$REMOTE/deploy/run_all.sh"
 
 if [[ "${1:-}" == "--models" ]]; then
 

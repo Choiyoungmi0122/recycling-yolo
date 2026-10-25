@@ -42,6 +42,47 @@ find_display() {
     fi
 }
 
+# ------------------------------------------------------------
+# 키오스크용 데스크톱 설정 (GNOME)
+#   왼쪽 위 모서리 / Super 키로 '활동' 화면이 열려 키오스크가 작아지는 것 방지,
+#   알림 배너가 키오스크 위에 뜨는 것 방지. 원래 값은 저장해 두고 disable 때 되돌림
+# ------------------------------------------------------------
+DESKTOP_KEYS=(
+    "org.gnome.desktop.interface enable-hot-corners false"
+    "org.gnome.mutter overlay-key ''"
+    "org.gnome.desktop.notifications show-banners false"
+)
+SAVED_SETTINGS="$STATE_DIR/desktop_settings.orig"
+
+gs() {
+    DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}" gsettings "$@"
+}
+
+apply_desktop_settings() {
+    command -v gsettings >/dev/null || return 0
+    local entry schema key value
+    if [[ ! -f "$SAVED_SETTINGS" ]]; then
+        for entry in "${DESKTOP_KEYS[@]}"; do
+            read -r schema key value <<< "$entry"
+            echo "$schema $key $(gs get "$schema" "$key" 2>/dev/null)" >> "$SAVED_SETTINGS"
+        done
+    fi
+    for entry in "${DESKTOP_KEYS[@]}"; do
+        read -r schema key value <<< "$entry"
+        gs set "$schema" "$key" "$value" 2>/dev/null
+    done
+}
+
+restore_desktop_settings() {
+    [[ -f "$SAVED_SETTINGS" ]] || return 0
+    local schema key value
+    while read -r schema key value; do
+        [[ -n "$value" ]] && gs set "$schema" "$key" "$value" 2>/dev/null
+    done < "$SAVED_SETTINGS"
+    rm -f "$SAVED_SETTINGS"
+    say "데스크톱 설정: 원래대로 (모서리 / Super 키 / 알림)"
+}
+
 controller_running() {
     [[ -f "$PGID_FILE" ]] && kill -0 -- "-$(cat "$PGID_FILE")" 2>/dev/null
 }
@@ -114,6 +155,8 @@ start_browser() {
         return 1
     fi
 
+    apply_desktop_settings
+
     if command -v chromium-browser >/dev/null || command -v chromium >/dev/null; then
         "$(command -v chromium-browser || command -v chromium)" --kiosk --noerrdialogs \
             --disable-infobars --autoplay-policy=no-user-gesture-required "$URL" \
@@ -171,7 +214,8 @@ case "${1:-}" in
     restart)   stop_all; sleep 2; start_controller && start_browser ;;
     status)    status ;;
     enable)    enable_autostart ;;
-    disable)   rm -f "$AUTOSTART"; say "자동 실행: 꺼짐 (지금 켜진 화면은 './deploy/kiosk.sh stop')" ;;
+    disable)   rm -f "$AUTOSTART"; restore_desktop_settings
+               say "자동 실행: 꺼짐 (지금 켜진 화면은 './deploy/kiosk.sh stop')" ;;
     logs)      tail -n 50 -f "$LOG" ;;
     *)         sed -n '2,13p' "$0"; exit 1 ;;
 esac
