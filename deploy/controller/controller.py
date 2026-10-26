@@ -99,16 +99,21 @@ class UiHub:
     def __init__(self):
         self.lock = threading.Lock()
         self.clients = []
-        self.state = {"screen": "standby"}
+        self.ready = False   # 추론 서비스 연결 여부 (False 면 대기 화면에 "시스템 준비 중")
+        self.state = {"screen": "standby", "ready": False}
 
     def set(self, **state):
 
-        self.state = state
-        data = json.dumps(state, ensure_ascii=False)
+        self.state = {**state, "ready": self.ready}
+        data = json.dumps(self.state, ensure_ascii=False)
 
         with self.lock:
             for q in self.clients:
                 q.put(data)
+
+    def set_ready(self, ready):
+        self.ready = ready
+        self.set(**{k: v for k, v in self.state.items() if k != "ready"})
 
     def subscribe(self):
         q = queue.Queue()
@@ -385,6 +390,7 @@ class Controller:
             # 재연결 시도마다 같은 로그가 반복되지 않도록 상태가 바뀔 때만 기록
             if event["up"] != self.service_up:
                 self.service_up = event["up"]
+                self.ui.set_ready(event["up"])
                 log("service", "연결됨" if event["up"] else
                     f"연결 안 됨 (추론 서비스가 꺼져 있음, 2초마다 재시도): {event.get('error')}")
             return

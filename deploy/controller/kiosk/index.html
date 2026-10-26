@@ -17,7 +17,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: var(--bg); color: var(--text);
-    font-family: "Noto Sans KR", "NanumGothic", "Malgun Gothic", sans-serif; overflow: hidden; }
+    font-family: "Noto Sans KR", "NanumGothic", "Malgun Gothic", sans-serif; overflow: hidden; cursor: none; }
   .screen { position: absolute; inset: 0; display: none; }
   .screen.active { display: flex; }
 
@@ -54,6 +54,13 @@
 
   #offline { position: absolute; right: 2vh; bottom: 2vh; padding: 1vh 2vh; border-radius: 1vh;
     background: var(--error); font-size: 2.2vh; display: none; }
+
+  /* 부팅 직후 추론 서비스가 아직 안 뜬 동안 대기 화면 구석에 표시 */
+  #preparing { position: absolute; right: 2vh; bottom: 2vh; padding: 0.8vh 1.8vh; border-radius: 1vh;
+    background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 2vh; display: none; }
+  #preparing::before { content: ""; display: inline-block; width: 1.6vh; height: 1.6vh; margin-right: 1vh;
+    vertical-align: -0.2vh; border: 0.3vh solid rgba(255, 255, 255, 0.4); border-top-color: #fff;
+    border-radius: 50%; animation: spin 0.9s linear infinite; }
 </style>
 </head>
 <body>
@@ -73,6 +80,7 @@
   </div>
 </section>
 
+<div id="preparing">시스템 준비 중</div>
 <div id="offline">컨트롤러 연결 끊김</div>
 
 <script>
@@ -145,6 +153,7 @@ function render(s) {
   const toCamera = s.screen === "camera";
   standby.classList.toggle("active", !toCamera);
   camera.classList.toggle("active", toCamera);
+  document.getElementById("preparing").style.display = !toCamera && s.ready === false ? "block" : "none";
 
   // 카메라 화면일 때만 스트림 연결 (대기 중에는 인코딩 부하 없음)
   if (toCamera && stream.dataset.on !== "1") {

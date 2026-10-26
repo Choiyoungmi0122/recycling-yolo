@@ -29,7 +29,8 @@ scp "$ROOT/deploy/Dockerfile.orin" \
 
 scp "$ROOT/deploy/controller/controller.py" "$ROOT/deploy/controller/nucleo.py" "$HOST:~/$REMOTE/deploy/controller/"
 ssh "$HOST" "mkdir -p ~/$REMOTE/deploy/tools"
-scp "$ROOT/deploy/tools/fake_nucleo.py" "$ROOT/deploy/tools/nucleo_test.py" "$HOST:~/$REMOTE/deploy/tools/"
+scp "$ROOT/deploy/tools/fake_nucleo.py" "$ROOT/deploy/tools/nucleo_test.py" \
+    "$ROOT/deploy/tools/record_screen.sh" "$HOST:~/$REMOTE/deploy/tools/"
 scp "$ROOT/deploy/controller/kiosk/index.html" "$HOST:~/$REMOTE/deploy/controller/kiosk/"
 
 # 대기 화면 슬라이드 (deploy/tools/pdf_to_slides.py 로 만든 PNG) - 기존 것을 지우고 새로 복사

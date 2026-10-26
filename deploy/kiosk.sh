@@ -5,7 +5,7 @@
 #   ./deploy/kiosk.sh stop       끄기 (수정 작업할 때)
 #   ./deploy/kiosk.sh restart    코드 / 설정 수정 후 다시 시작
 #   ./deploy/kiosk.sh status     실행 상태 확인
-#   ./deploy/kiosk.sh enable     로그인하면 자동 실행 (기본)
+#   ./deploy/kiosk.sh enable     로그인하면 자동 실행 (기본, 추론 서비스도 함께)
 #   ./deploy/kiosk.sh disable    자동 실행 끄기 (다음 부팅부터 적용, 지금 켜진 것은 stop 으로)
 #   ./deploy/kiosk.sh logs       컨트롤러 로그 보기 (Ctrl+C 로 나가기)
 #
@@ -45,12 +45,17 @@ find_display() {
 # ------------------------------------------------------------
 # 키오스크용 데스크톱 설정 (GNOME)
 #   왼쪽 위 모서리 / Super 키로 '활동' 화면이 열려 키오스크가 작아지는 것 방지,
-#   알림 배너가 키오스크 위에 뜨는 것 방지. 원래 값은 저장해 두고 disable 때 되돌림
+#   알림 배너가 키오스크 위에 뜨는 것 방지, 입력이 없어도 화면이 꺼지거나 잠기지 않게.
+#   원래 값은 저장해 두고 disable 때 되돌림
 # ------------------------------------------------------------
 DESKTOP_KEYS=(
     "org.gnome.desktop.interface enable-hot-corners false"
     "org.gnome.mutter overlay-key ''"
     "org.gnome.desktop.notifications show-banners false"
+    "org.gnome.desktop.session idle-delay 0"
+    "org.gnome.desktop.screensaver lock-enabled false"
+    "org.gnome.desktop.screensaver idle-activation-enabled false"
+    "org.gnome.settings-daemon.plugins.power idle-dim false"
 )
 SAVED_SETTINGS="$STATE_DIR/desktop_settings.orig"
 
@@ -61,16 +66,17 @@ gs() {
 apply_desktop_settings() {
     command -v gsettings >/dev/null || return 0
     local entry schema key value
-    if [[ ! -f "$SAVED_SETTINGS" ]]; then
-        for entry in "${DESKTOP_KEYS[@]}"; do
-            read -r schema key value <<< "$entry"
-            echo "$schema $key $(gs get "$schema" "$key" 2>/dev/null)" >> "$SAVED_SETTINGS"
-        done
-    fi
+    touch "$SAVED_SETTINGS"
     for entry in "${DESKTOP_KEYS[@]}"; do
         read -r schema key value <<< "$entry"
+        # 처음 바꾸는 키만 원래 값 저장 (나중에 추가된 키도 저장되도록 키마다 확인)
+        if ! grep -q "^$schema $key " "$SAVED_SETTINGS"; then
+            echo "$schema $key $(gs get "$schema" "$key" 2>/dev/null)" >> "$SAVED_SETTINGS"
+        fi
         gs set "$schema" "$key" "$value" 2>/dev/null
     done
+    # X 화면 보호기 / 절전(DPMS) 끄기 — 로그인할 때마다 초기화되므로 매번 적용
+    xset s off -dpms 2>/dev/null
 }
 
 restore_desktop_settings() {
@@ -222,7 +228,9 @@ EOF
 case "${1:-}" in
     start)     start_controller && start_browser ;;
     autostart) echo "[kiosk] ---- 로그인 자동 실행 $(date '+%F %T') ----" >>"$LOG"
-               start_controller && start_browser ;;
+               start_controller && start_browser
+               # 추론 서비스는 감시 프로세스가 도커 · 카메라 준비를 기다렸다가 시작
+               "$APP_DIR/deploy/run_all.sh" boot ;;
     stop)      stop_all ;;
     restart)   stop_all; sleep 2; start_controller && start_browser ;;
     status)    status ;;
