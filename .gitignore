@@ -64,3 +64,6 @@ scripts/eval_method1_vs_method2_test.py
 reports/**/*.docx
 videos/
 pc_compare/
+
+# Separate git dir for the private full repo (deploy/private_push.sh)
+.git-private/
