@@ -67,3 +67,6 @@ pc_compare/
 
 # Separate git dir for the private full repo (deploy/private_push.sh)
 .git-private/
+
+# Delivery packages (deploy/make_release.sh output)
+release/
