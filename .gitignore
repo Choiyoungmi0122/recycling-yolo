@@ -55,3 +55,12 @@ Thumbs.db
 # Controller runtime output (Orin / local test)
 deploy/controller/logs/
 deploy/controller/media/
+
+# Not published (kept local only): core source, documents, result media
+deploy/
+scripts/method1_integrated_inference.py
+scripts/test_method1_integrated.py
+scripts/eval_method1_vs_method2_test.py
+reports/**/*.docx
+videos/
+pc_compare/
