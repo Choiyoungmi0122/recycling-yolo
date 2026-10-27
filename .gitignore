@@ -62,6 +62,8 @@ scripts/method1_integrated_inference.py
 scripts/test_method1_integrated.py
 scripts/eval_method1_vs_method2_test.py
 reports/**/*.docx
+reports/**/*.pdf
+monitor_video/
 videos/
 pc_compare/
 
